@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lebo's Blog & Portfolio</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin:0; padding:0;
+      background:#f8fafc; color:#333;
+    }
+    header {
+      background:linear-gradient(90deg,#1e3c72,#2a5298);
+      color:#fff; padding:15px 30px;
+      display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+      position:sticky; top:0; z-index:50;
+    }
+    header h1 {margin:0; font-size:1.6rem;}
+    header nav {display:flex; gap:20px; align-items:center;}
+    header nav a {color:#fff; text-decoration:none; font-weight:500; transition:0.3s;}
+    header nav a:hover {color:#fbbf24;}
+    header button {
+      padding:6px 14px; border:none; border-radius:20px; cursor:pointer;
+      background:#fff; color:#2a5298; font-weight:bold; transition:0.3s;
+    }
+    header button:hover {background:#f0f9ff;}
+
+    .section {display:none; padding:30px;}
+    .active {display:block;}
+
+    #home nav {
+      margin:20px auto; display:flex; flex-wrap:wrap;
+      gap:10px; justify-content:center;
+    }
+    #home nav input {
+      flex:1 1 100%; max-width:500px;
+      padding:10px; border:2px solid #2a5298;
+      border-radius:25px; outline:none; margin-bottom:10px;
+    }
+    #home nav button {
+      padding:8px 16px; border:none; border-radius:20px;
+      background:#f3f4f6; cursor:pointer; font-size:0.9rem; transition:0.3s;
+    }
+    #home nav button:hover {background:#dbeafe; color:#1e3c72;}
+
+    #content {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:20px;
+    }
+    .post {
+      background:#fff; padding:15px; border-radius:15px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      transition:transform 0.2s;
+    }
+    .post:hover {transform:translateY(-6px); box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+    .post img,.post video {max-width:100%; border-radius:10px; margin-bottom:10px;}
+    .post h3 {margin:5px 0; color:#1e3c72; font-size:1.4rem;}
+    .post small.date {display:block; margin-top:8px; color:#555; font-size:0.85rem;}
+    .post p {line-height:1.5;}
+    .actions {margin-top:10px; display:flex; gap:10px; align-items:center;}
+    .like {cursor:pointer; color:#ef4444; font-weight:bold; transition:0.3s;}
+    .like.liked {color:#dc2626;}
+    .actions button {
+      padding:5px 10px; border:none; border-radius:5px;
+      background:#2a5298; color:#fff; cursor:pointer; font-size:0.8rem;
+    }
+    .actions button:hover {background:#1e3c72;}
+
+    .hidden {display:none;}
+
+    #loginModal,#profileModal,#postModal {
+      position:fixed; top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.6);display:none;
+      justify-content:center;align-items:center;
+    }
+    .modal-content {
+      background:#fff; padding:20px; border-radius:15px;
+      width:90%; max-width:400px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    }
+    .modal-content h2 {margin-top:0; color:#1e3c72;}
+    input,textarea,select {
+      width:100%; padding:10px; margin:8px 0;
+      border:1px solid #ccc; border-radius:8px;
+    }
+
+    /* Profile styling */
+    #profile {
+      background:#fff; margin:20px auto; padding:30px;
+      border-radius:15px; text-align:center; max-width:600px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    #profile .circle-pic {
+      width:160px; height:160px; border-radius:50%;
+      overflow:hidden; margin:0 auto 15px;
+      border:4px solid #2a5298; display:flex; justify-content:center; align-items:center;
+    }
+    #profile .circle-pic img {
+      width:100%; height:100%; object-fit:cover;
+    }
+    #profile h2 {color:#1e3c72; margin:10px 0;}
+    #profile p {line-height:1.6;}
+    #profile .profile-actions {
+      margin-top:15px; display:flex; justify-content:center; gap:10px;
+    }
+    #profile .profile-actions button {
+      padding:6px 12px; border:none; border-radius:8px;
+      cursor:pointer; font-size:0.85rem; background:#2a5298; color:#fff;
+    }
+    #profile .profile-actions button:hover {background:#1e3c72;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Lebo's Blog</h1>
+    <nav>
+      <a href="#" onclick="showSection('home')">Home</a>
+      <a href="#" onclick="showSection('about')">About</a>
+      <button id="loginBtn">Login</button>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </nav>
+  </header>
+
+  <!-- Home -->
+  <section id="home" class="section active">
+    <nav>
+      <input type="text" id="search" placeholder="Search posts...">
+      <button data-category="all">All</button>
+      <button data-category="lifestyle">Lifestyle</button>
+      <button data-category="travel">Travel</button>
+      <button data-category="food & health">Food & Health</button>
+      <button data-category="opinions and discussions">Opinions</button>
+      <button data-category="entertainment">Entertainment</button>
+      <button data-category="sports and recreation">Sports</button>
+      <button data-category="storytelling">Storytelling</button>
+      <button data-category="memories">Memories</button>
+      <button data-category="relationships and social life">Relationships</button>
+      <button data-category="advertisements">Advertisements</button>
+      <button data-category="products & skincare">Products</button>
+      <button data-category="my work">My Work</button>
+    </nav>
+    <div style="text-align:center; margin:20px;">
+      <button id="newPostBtn" class="hidden">+ New Post</button>
+    </div>
+    <section id="content"></section>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section">
+    <div id="profile"></div>
+  </section>
+
+  <!-- Modals -->
+  <div id="loginModal">
+    <div class="modal-content">
+      <h2>Host Login</h2>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button id="loginSubmit">Login</button>
+    </div>
+  </div>
+
+  <div id="postModal">
+    <div class="modal-content">
+      <h2 id="postModalTitle">New Post</h2>
+      <input type="text" id="postTitle" placeholder="Title">
+      <select id="postCategory">
+        <option value="lifestyle">Lifestyle</option>
+        <option value="travel">Travel</option>
+        <option value="food & health">Food & Health</option>
+        <option value="opinions and discussions">Opinions</option>
+        <option value="entertainment">Entertainment</option>
+        <option value="sports and recreation">Sports & Recreation</option>
+        <option value="storytelling">Storytelling</option>
+        <option value="memories">Memories</option>
+        <option value="relationships and social life">Relationships</option>
+        <option value="advertisements">Advertisements</option>
+        <option value="products & skincare">Products</option>
+        <option value="my work">My Work</option>
+      </select>
+      <select id="postSubCategory" class="hidden">
+        <option value="">--Subcategory (My Work)--</option>
+        <option value="make-up">Make-up</option>
+        <option value="buff & shine">Buff & Shine</option>
+        <option value="manicure">Manicure</option>
+        <option value="lashes">Lashes</option>
+      </select>
+      <textarea id="postContent" placeholder="Write your story..."></textarea>
+      <input type="file" id="postMedia" accept="image/*,video/*">
+      <button id="savePost">Publish</button>
+    </div>
+  </div>
+
+  <div id="profileModal">
+    <div class="modal-content">
+      <h2>Edit Profile</h2>
+      <input type="file" id="profilePic" accept="image/*">
+      <textarea id="aboutText" placeholder="Write about yourself..."></textarea>
+      <button id="saveProfile">Save Profile</button>
+    </div>
+  </div>
+
+  <script>
+    const HOST_USER = "Lebo@2500086";
+    const HOST_PASS = "JOJO@25";
+    let isHost = false;
+    let editIndex = null;
+
+    function getPosts(){return JSON.parse(localStorage.getItem("posts")||"[]");}
+    function savePosts(posts){localStorage.setItem("posts",JSON.stringify(posts));}
+    function getLikedPosts(){return JSON.parse(localStorage.getItem("likedPosts")||"[]");}
+    function saveLikedPosts(likes){localStorage.setItem("likedPosts",JSON.stringify(likes));}
+
+    function renderPosts(filter="all", query=""){
+      const posts = getPosts();
+      const liked = getLikedPosts();
+      const content=document.getElementById("content");
+      content.innerHTML="";
+      posts.forEach((p,i)=>{
+        if((filter==="all"||p.category===filter||p.subCategory===filter) && (p.title.toLowerCase().includes(query)||p.content.toLowerCase().includes(query))){
+          const div=document.createElement("div");
+          div.className="post";
+          const likedClass = liked.includes(i)?"liked":"";
+          div.innerHTML=`
+            <h3>${p.title}</h3>
+            <p>${p.content}</p>
+            ${p.media? (p.mediaType.startsWith("image")?`<img src="${p.media}">`:`<video controls src="${p.media}"></video>`):""}
+            <small class="date">📅 ${p.updatedAt ? "Edited on "+p.updatedAt : "Posted on "+p.createdAt}</small>
+            <div class="actions">
+              <span class="like ${likedClass}" data-index="${i}">❤ ${p.likes||0}</span>
+              ${isHost?`<button onclick="editPost(${i})">Edit</button><button onclick="deletePost(${i})">Delete</button>`:""}
+            </div>`;
+          content.appendChild(div);
+        }
+      });
+      document.querySelectorAll(".like").forEach(likeBtn=>{
+        likeBtn.onclick=()=>{
+          const i=parseInt(likeBtn.dataset.index);
+          const posts=getPosts();
+          let liked=getLikedPosts();
+          if(liked.includes(i)){
+            posts[i].likes = Math.max(0,(posts[i].likes||0)-1);
+            liked = liked.filter(x=>x!==i);
+          } else {
+            posts[i].likes=(posts[i].likes||0)+1;
+            liked.push(i);
+          }
+          savePosts(posts);
+          saveLikedPosts(liked);
+          renderPosts(filter,query);
+        };
+      });
+    }
+
+    function editPost(i){
+      const posts=getPosts();
+      const p=posts[i];
+      document.getElementById("postTitle").value=p.title;
+      document.getElementById("postCategory").value=p.category;
+      document.getElementById("postSubCategory").value=p.subCategory||"";
+      document.getElementById("postContent").value=p.content;
+      toggleSubCategory();
+      editIndex=i;
+      document.getElementById("postModal").style.display="flex";
+    }
+
+    function deletePost(i){
+      const posts=getPosts();
+      posts.splice(i,1);
+      savePosts(posts);
+      renderPosts();
+    }
+
+    document.getElementById("loginBtn").onclick=()=>document.getElementById("loginModal").style.display="flex";
+    document.getElementById("logoutBtn").onclick=()=>{isHost=false;toggleHostUI();};
+    document.getElementById("loginSubmit").onclick=()=>{
+      const u=document.getElementById("username").value;
+      const p=document.getElementById("password").value;
+      if(u===HOST_USER&&p===HOST_PASS){
+        isHost=true;
+        document.getElementById("loginModal").style.display="none";
+        toggleHostUI();
+      } else alert("Wrong credentials");
+    };
+
+    function toggleHostUI(){
+      document.getElementById("loginBtn").classList.toggle("hidden",isHost);
+      document.getElementById("logoutBtn").classList.toggle("hidden",!isHost);
+      document.getElementById("newPostBtn").classList.toggle("hidden",!isHost);
+      renderPosts();
+      renderProfile();
+    }
+
+    document.getElementById("newPostBtn").onclick=()=>{
+      editIndex=null;
+      document.getElementById("postTitle").value="";
+      document.getElementById("postContent").value="";
+      document.getElementById("postMedia").value="";
+      document.getElementById("postSubCategory").value="";
+      toggleSubCategory();
+      document.getElementById("postModal").style.display="flex";
+    };
+
+    document.getElementById("savePost").onclick=()=>{
+      const posts=getPosts();
+      const reader=new FileReader();
+      if(document.getElementById("postMedia").files[0]){
+        reader.onload=()=>{
+          savePostData(posts,reader.result,document.getElementById("postMedia").files[0].type);
+        };
+        reader.readAsDataURL(document.getElementById("postMedia").files[0]);
+      } else savePostData(posts);
+      document.getElementById("postModal").style.display="none";
+    };
+
+    function savePostData(posts,media=null,type=""){
+      const now = new Date().toLocaleString();
+      const category=document.getElementById("postCategory").value;
+      const subCategory = category==="my work" ? document.getElementById("postSubCategory").value : "";
+      if(editIndex!==null){
+        posts[editIndex] = {...posts[editIndex],
+          title:document.getElementById("postTitle").value,
+          category:category,
+          subCategory:subCategory,
+          content:document.getElementById("postContent").value,
+          media:media||posts[editIndex].media,
+          mediaType:type||posts[editIndex].mediaType,
+          updatedAt:now
+        };
+      } else {
+        posts.push({
+          title:document.getElementById("postTitle").value,
+          category:category,
+          subCategory:subCategory,
+          content:document.getElementById("postContent").value,
+          media:media,
+          mediaType:type,
+          likes:0,
+          createdAt:now,
+          updatedAt:null
+        });
+      }
+      savePosts(posts);
+      renderPosts();
+    }
+
+    function toggleSubCategory(){
+      const category=document.getElementById("postCategory").value;
+      document.getElementById("postSubCategory").classList.toggle("hidden",category!=="my work");
+    }
+    document.getElementById("postCategory").onchange=toggleSubCategory;
+
+    document.getElementById("search").oninput=()=>renderPosts("all",document.getElementById("search").value.toLowerCase());
+    document.querySelectorAll("#home nav button").forEach(b=>b.onclick=()=>renderPosts(b.dataset.category,document.getElementById("search").value.toLowerCase()));
+
+    /* Profile Section */
+    function getProfile(){return JSON.parse(localStorage.getItem("profile")||"{}");}
+    function saveProfileData(p){localStorage.setItem("profile",JSON.stringify(p));}
+    function renderProfile(){
+      const p=getProfile();
+      document.getElementById("profile").innerHTML=`
+        <div class="circle-pic">${p.pic?`<img src="${p.pic}">`:""}</div>
+        <h2>About Me</h2>
+        <p>${p.about||"No description yet."}</p>
+        ${isHost?`
+          <div class="profile-actions">
+            <button onclick="editProfile()">Edit</button>
+            ${p.pic?`<button onclick="deleteProfilePic()">Delete Picture</button>`:""}
+          </div>`:""}
+      `;
+    }
+
+    function editProfile(){
+      const p=getProfile();
+      document.getElementById("aboutText").value=p.about||"";
+      document.getElementById("profileModal").style.display="flex";
+    }
+    function deleteProfilePic(){
+      const p=getProfile();
+      p.pic=null;
+      saveProfileData(p);
+      renderProfile();
+    }
+    document.getElementById("saveProfile").onclick=()=>{
+      const p=getProfile();
+      const about=document.getElementById("aboutText").value;
+      if(document.getElementById("profilePic").files[0]){
+        const r=new FileReader();
+        r.onload=()=>{
+          p.pic=r.result;
+          p.about=about;
+          saveProfileData(p);
+          renderProfile();
+        };
+        r.readAsDataURL(document.getElementById("profilePic").files[0]);
+      } else {
+        p.about=about;
+        saveProfileData(p);
+        renderProfile();
+      }
+      document.getElementById("profileModal").style.display="none";
+    };
+
+    function showSection(id){
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    renderPosts(); renderProfile();
+  </script>
+</body>
+</html>
